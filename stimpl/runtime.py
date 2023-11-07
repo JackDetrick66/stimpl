@@ -375,11 +375,11 @@ def evaluate(expression: Expr, state: State) -> Tuple[Optional[Any], Type, State
 
         case While(condition=condition, body=body):
             """ TODO: Implement. """
-            pass
-
+            While (condition)
+            returnResult = evaluate(body)
         case _:
             raise InterpSyntaxError("Unhandled!")
-    pass
+    return returnResult
 
 
 def run_stimpl(program, debug=False):
