@@ -88,9 +88,13 @@ def evaluate(expression: Expr, state: State) -> Tuple[Optional[Any], Type, State
 
         case Sequence(exprs=exprs) | Program(exprs=exprs):
             """ TODO: Implement. """
+            value = None
+            value_type = Unit()
+            new_state = state
             for expr in exprs:
-                value,value_type,currentState = evaluate(expr,state)
-            return value,value_type,currentState
+                value,value_type,new_state = evaluate(expression=expr,state=new_state)
+            #CHECK WITH HAWINS ABOUT THIS EVALUATE EXPRESSION
+            return value,value_type,new_state
         
         
         # PUT COMMENTS TO CEMENT UNDERSTANDING/ASK HAWKINS
@@ -242,13 +246,17 @@ def evaluate(expression: Expr, state: State) -> Tuple[Optional[Any], Type, State
 
         case If(condition=condition, true=true, false=false):
             """ TODO: Implement. """
-            condition_value, condition_type, condition_state = evaluate(condition)
+            condition_value, condition_type, condition_state = evaluate(condition, state)
             match condition_type:
-                case bool():
-                    if (condition_value == true):
-                        return (true)
+                case Boolean():
+                    if (condition_value):
+                        condition_value, condition_type, condition_state = evaluate(true, condition_state)
                     else:
-                        return(false)
+                        condition_value, condition_type, condition_state = evaluate(false, condition_state)
+                case _:
+                    raise InterpTypeError(
+                        f"Cannot perform bool operation on {condition_type}")
+            return(condition_value,condition_type,condition_state)
 
         case Lt(left=left, right=right):
             left_value, left_type, new_state = evaluate(left, state)
@@ -284,9 +292,9 @@ def evaluate(expression: Expr, state: State) -> Tuple[Optional[Any], Type, State
 
             match left_type:
                 case Integer() | Boolean() | String() | FloatingPoint():
-                    result = left_value <= right_value
+                    result = (left_value <= right_value)
                 case Unit():
-                    result = False
+                        result = True
                 case _:
                     raise InterpTypeError(
                         f"Cannot perform < on {left_type} type.")
@@ -329,10 +337,11 @@ def evaluate(expression: Expr, state: State) -> Tuple[Optional[Any], Type, State
                 case Integer() | Boolean() | String() | FloatingPoint():
                     result = left_value >= right_value
                 case Unit():
-                    result = False
+                    result = True
                 case _:
                     raise InterpTypeError(
                         f"Cannot perform < on {left_type} type.")
+            return (result, Boolean(), new_state)
 
         case Eq(left=left, right=right):
             """ TODO: Implement. """
@@ -347,13 +356,14 @@ def evaluate(expression: Expr, state: State) -> Tuple[Optional[Any], Type, State
 
             match left_type:
                 case Integer() | Boolean() | String() | FloatingPoint():
-                    result = left_value == right_value
+                    result = (left_value == right_value)
                 case Unit():
-                    result = False
+                    if (left_value == None) and (right_value == None):
+                        result = True
                 case _:
                     raise InterpTypeError(
                         f"Cannot perform < on {left_type} type.")
-
+            return (result, Boolean(), new_state)
 
         case Ne(left=left, right=right):
             """ TODO: Implement. """
@@ -374,15 +384,22 @@ def evaluate(expression: Expr, state: State) -> Tuple[Optional[Any], Type, State
                 case _:
                     raise InterpTypeError(
                         f"Cannot perform < on {left_type} type.")
+            return (result, Boolean(), new_state)
 
 
         case While(condition=condition, body=body):
             """ TODO: Implement. """
-            While (condition)
-            returnResult = evaluate(body)
-        case _:
-            raise InterpSyntaxError("Unhandled!")
-    return returnResult
+            condition_value, condition_type, current_state = evaluate(condition, state)
+            match condition_type:
+                case Boolean():
+                    while(condition_value):
+                       body_value, body_type, current_state = evaluate(body, current_state)
+                       condition_value, condition_type, current_state = evaluate(condition, current_state)
+            
+                case _:
+                    raise InterpTypeError("Unhandled!")
+            return condition_value, condition_type, current_state
+        #TALK TO HAWKINS ABOUT THIS ONE, WHY RETURN CONDITIONS AND NOT BODY???
 
 
 def run_stimpl(program, debug=False):
