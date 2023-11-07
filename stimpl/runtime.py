@@ -148,7 +148,7 @@ def evaluate(expression: Expr, state: State) -> Tuple[Optional[Any], Type, State
             Cannot subtract {left_type} by {right_type}""")
 
             match left_type:
-                case Integer() | String() | FloatingPoint():
+                case Integer() | FloatingPoint():
                     result = left_result - right_result
                 case _:
                     raise InterpTypeError(f"""Cannot subtract {left_type}s""")
@@ -165,7 +165,7 @@ def evaluate(expression: Expr, state: State) -> Tuple[Optional[Any], Type, State
             Cannot multiply {left_type} by {right_type}""")
 
             match left_type:
-                case Integer() | String() | FloatingPoint():
+                case Integer() | FloatingPoint():
                     result = left_result * right_result
                 case _:
                     raise InterpTypeError(f"""Cannot multiply {left_type}s""")
@@ -181,9 +181,13 @@ def evaluate(expression: Expr, state: State) -> Tuple[Optional[Any], Type, State
             if left_type != right_type:
                 raise InterpTypeError(f"""Mismatched types for Divide:
             Cannot divide {left_type} by {right_type}""")
+            if right_result == 0:
+                raise InterpMathError(f"""Attempted to divide by zero.""")
 
             match left_type:
-                case Integer() | String() | FloatingPoint():
+                case Integer():
+                    result = left_result // right_result
+                case FloatingPoint():
                     result = left_result / right_result
                 case _:
                     raise InterpTypeError(f"""Cannot divide {left_type}s""")
@@ -225,16 +229,16 @@ def evaluate(expression: Expr, state: State) -> Tuple[Optional[Any], Type, State
 
         case Not(expr=expr):
             """ TODO: Implement. """
-            result = evaluate(expr)
+            expr_value, expr_type, expr_state = evaluate(expr, state)
             
-            match expr:
+            match expr_type:
                 case Boolean():
-                    result = not result
+                    result = not expr_value
                 case _:
                     raise InterpTypeError(
                         "Cannot perform logical and on non-boolean operands.")
 
-            return (result, new_state)
+            return (result,expr_type, expr_state)
 
         case If(condition=condition, true=true, false=false):
             """ TODO: Implement. """
