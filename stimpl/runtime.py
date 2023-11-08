@@ -93,7 +93,7 @@ def evaluate(expression: Expr, state: State) -> Tuple[Optional[Any], Type, State
             new_state = state
             for expr in exprs:
                 value,value_type,new_state = evaluate(expression=expr,state=new_state)
-            #CHECK WITH HAWINS ABOUT THIS EVALUATE EXPRESSION
+            #CHECK WITH HAWKINS ABOUT THIS EVALUATE EXPRESSION
             return value,value_type,new_state
         
         
