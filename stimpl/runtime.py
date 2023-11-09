@@ -88,12 +88,18 @@ def evaluate(expression: Expr, state: State) -> Tuple[Optional[Any], Type, State
 
         case Sequence(exprs=exprs) | Program(exprs=exprs):
             """ TODO: Implement. """
+        #Inputting default values
             value = None
             value_type = Unit()
             new_state = state
+        #Iterate through list of expressions
             for expr in exprs:
+            #take the value, type, and state of the expression, and replace old values with new ones
                 value,value_type,new_state = evaluate(expression=expr,state=new_state)
+
             #CHECK WITH HAWKINS ABOUT THIS EVALUATE EXPRESSION
+            
+        #will return the value, type, and state of the last updated values.
             return value,value_type,new_state
         
         
