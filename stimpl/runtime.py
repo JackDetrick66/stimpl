@@ -150,13 +150,14 @@ def evaluate(expression: Expr, state: State) -> Tuple[Optional[Any], Type, State
         case Subtract(left=left, right=right):
             """ TODO: Implement. """
             result = 0
+        #fill in values for lest and right, such as type, value, state
             left_result, left_type, new_state = evaluate(left, state)
             right_result, right_type, new_state = evaluate(right, new_state)
-
+        #type checking
             if left_type != right_type:
                 raise InterpTypeError(f"""Mismatched types for Subtract:
             Cannot subtract {left_type} by {right_type}""")
-
+        #check for cases, only works for int and floats
             match left_type:
                 case Integer() | FloatingPoint():
                     result = left_result - right_result
@@ -164,6 +165,7 @@ def evaluate(expression: Expr, state: State) -> Tuple[Optional[Any], Type, State
                     raise InterpTypeError(f"""Cannot subtract {left_type}s""")
 
             return (result, left_type, new_state)
+    #same as add, change + to *
         case Multiply(left=left, right=right):
             """ TODO: Implement. """
             result = 0
